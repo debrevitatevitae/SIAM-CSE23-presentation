@@ -16,6 +16,7 @@
 \usepackage{MnSymbol,wasysym}
 \usepackage{physics}
 \usepackage{tikz}
+\usepackage{booktabs}
 \usetikzlibrary{quantikz}
 
 \setbeamertemplate{navigation symbols}{} % remove navigation symbols
@@ -33,7 +34,7 @@
 \title[]{Learning with quantum kernels: early applications to material damage prediction}
 \institute[]{Delft University of Technology, The Netherlands}
 \author{Giorgio Tosti Balducci}
-%\date{}
+\date{March 3, 2023}
 
 \begin{document}
 {
@@ -319,7 +320,7 @@
             \pause
             `Analytic' feature map and kernel:
             \begin{gather*}
-                \phi\left( \mathbf{x} \right) = \left( x_1^2,\, x_2^2,\, x_1 x_2 \right)\\
+                \phi\left( \mathbf{x} \right) = \left( x_1^2,\, x_2^2,\, x_1 x_2 \right)^\top\\
                 k\left( \mathbf{x}, \mathbf{x}^\prime \right) = \langle \phi\left( \mathbf{x} \right), \phi\left( \mathbf{x}^\prime \right) \rangle
             \end{gather*}
         \end{minipage}
@@ -374,7 +375,10 @@
         \frametitle{Von Mises criterion}
         \framesubtitle{Using a quantum `quadratic' kernel}
     
-        Reason: normalization to quantum states completely confuses the data
+        Reason: normalization in the original feature space confuses the data
+        \[
+            \phi\left( \mathbf{x} \right) = \left( x_1, x_2 \right)/\norm*{\mathbf{x}}
+        \]
 
         \ \\
         \pause
@@ -500,7 +504,11 @@
     \begin{frame}[noframenumbering]
         \frametitle{Dual formulation of the maximum margin classifier}
         
-        
+        \begin{align*}
+            \mathrm{max}_\alpha \quad & C\left( \alpha \right) = \sum_i \alpha_i - \frac{1}{2}\sum_{i,j} y^{(i)}y^{(j)}\alpha_i\alpha_j \langle x^{(i)}, x^{(j)}\rangle\\
+            \mathrm{s.t.}\quad & \alpha_i \geq 0, \quad i=1,\dots, m\\
+            & \sum_i \alpha_i y^{(i)} = 0
+        \end{align*}
         
     \end{frame}
     
@@ -508,24 +516,62 @@
     \begin{frame}[noframenumbering]
         \frametitle{Classical kernels}
     
-        Some examples of classical kernels
+        \begin{table}[htbp]
+            \centering
+            \begin{tabular}{cc}
+                \toprule
+                Name & Expression\\
+                \midrule
+                polynomial & $ \left( \gamma\langle \mathbf{x}, \mathbf{x}^\prime \rangle + c_0 \right)^d$\\
+                sigmoid & $\mathrm{tanh}\left( \gamma\langle \mathbf{x}, \mathbf{x}^\prime\rangle + c_0 \right)$\\
+                RBF & $\mathrm{exp}\left( -\gamma \norm*{\mathbf{x} - \mathbf{x}^\prime}^2 \right)$\\
+                \bottomrule
+
+            \end{tabular}
+            \caption{Some popular kernels}
+        \end{table}
     
     \end{frame}
 
     \begin{frame}[noframenumbering]
         \frametitle{Amplitude encoding circuits}
     
+        1 qubit
+        \begin{center}
+            \includegraphics[width=.5\textwidth]{pics/amp-enc-1q-circ.png}
+        \end{center}
+        
+        \ \\
         2 qubits
-
-        4 qubits
+        \begin{center}
+            
+            \includegraphics[width=\linewidth]{pics/amp-enc-2q-circ.png}
+        \end{center}
     
     \end{frame}
 
     \begin{frame}[noframenumbering]
         \frametitle{Single rotation kernel encoding for 2 qubits}
     
-        
-    
+        \small
+        \begin{equation*}
+            k\left( \mathbf{x}, \mathbf{x}^\prime \right) = \prod_{i=1}^{N}\cos\left( x_i - x_i^\prime \right) 
+        \end{equation*}
+
+        With 2 features ($\mathbf{x}=\left( x_1, x_2 \right)^\top$),
+
+        \begin{equation*}
+            k\left( \mathbf{x}, \mathbf{x}^\prime \right) = \cos\left( x_1 - x_1^\prime \right) \cos\left( x_2 - x_2^\prime \right)
+        \end{equation*}
+
+        Substitute $z_i = \left( x_i - x_i^\prime \right)$ and Mc Laurin expand
+        \begin{align*}
+            k\left( \mathbf{x}, \mathbf{x}^\prime \right) & \approxeq \left( 1 - \frac{1}{2} z_1^2 \right)\left( 1 - \frac{1}{2} z_2^2 \right)\\
+            & = 1 - \frac{1}{2}z_2^2 - \frac{1}{2} z_1^2 + \frac{1}{4} z_1^2 z_2^2\\
+            & = \dots
+        \end{align*}
+
+        Re-substituting $\mathbf{x}$, $\mathbf{x}^\prime$, one finds $x_i^2x_i^{\prime\, 2}$ and $x_i x_j x_i^\prime x_j^\prime$ terms as in the classical quadratic kernel, as well as additional 4\textsuperscript{th} order terms in the features.
     \end{frame}
     % Equivalent to finding
     % \[
