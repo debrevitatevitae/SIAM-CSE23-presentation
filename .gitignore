@@ -508,3 +508,4 @@ poetry.toml
 
 *.pdf
 pics/
+.DS_Store
